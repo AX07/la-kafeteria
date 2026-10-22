@@ -1,0 +1,6 @@
+{
+  "name": "La Kafeteria - Specialty Coffee & Breakfast Atelier",
+  "description": "Artisan specialty coffee, traditional Andalusian pitufo toasts, eggs benedict, fresh smoothies, and tapas in San Pedro Alcántara.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
