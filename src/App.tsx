@@ -286,12 +286,24 @@ export default function App() {
 
         </div>
 
-        <div className="max-w-7xl mx-auto mt-8 pt-4 border-t border-[#a66a38]/15 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#a66a38]">
+        <div className="max-w-7xl mx-auto mt-8 pt-4 border-t border-[#a66a38]/15 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#a66a38]">
           <p>© 2026 La Kafeteria San Pedro Alcántara. Todos los derechos reservados. Precios con IVA incluido.</p>
-          <p className="font-mono flex items-center gap-1">
-            <span>Crafted for sunny mornings & specialty coffee lovers</span>
-            <Heart className="w-3 h-3 text-[#d98236] fill-current inline" />
-          </p>
+          <div className="flex flex-wrap items-center gap-1.5 font-mono">
+            <span>{language === 'es' ? 'Sitio web desarrollado por' : 'Website developed by'}</span>
+            <a
+              href="https://ax07.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#d98236] hover:text-[#f7f1e5] font-semibold transition-colors underline decoration-[#d98236]/40 underline-offset-2 ml-0.5"
+            >
+              ax07.dev
+            </a>
+            <span className="text-[#a66a38]/60 mx-1">·</span>
+            <span className="flex items-center gap-1">
+              <span>Specialty Coffee Atelier</span>
+              <Heart className="w-3 h-3 text-[#d98236] fill-current inline" />
+            </span>
+          </div>
         </div>
       </footer>
 
