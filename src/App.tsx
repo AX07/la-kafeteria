@@ -3,49 +3,62 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { VisualPicksSection } from './components/VisualPicksSection';
 import { AtmosphereAndReviews } from './components/AtmosphereAndReviews';
 import { LocationAndHoursSection } from './components/LocationAndHoursSection';
 import { MobileStickyBar } from './components/MobileStickyBar';
-import { MenuPage } from './pages/MenuPage';
-import { ItemCustomizerModal } from './components/ItemCustomizerModal';
-import { OrderDrawer } from './components/OrderDrawer';
-import { AtelierInfoModal } from './components/AtelierInfoModal';
+const MenuPage = lazy(() => import('./pages/MenuPage').then((m) => ({ default: m.MenuPage })));
+const ItemCustomizerModal = lazy(() =>
+  import('./components/ItemCustomizerModal').then((m) => ({ default: m.ItemCustomizerModal }))
+);
+const OrderDrawer = lazy(() => import('./components/OrderDrawer').then((m) => ({ default: m.OrderDrawer })));
+const AtelierInfoModal = lazy(() =>
+  import('./components/AtelierInfoModal').then((m) => ({ default: m.AtelierInfoModal }))
+);
 import { Language, MenuItem, CartItem, SelectedItemOption } from './types';
-import { Coffee, ChevronUp, Heart, UtensilsCrossed } from 'lucide-react';
+import { ChevronUp, Heart, UtensilsCrossed } from 'lucide-react';
+import { FlyingMark } from './components/FlyingMark';
+import {
+  useSmoothScroll,
+  useHeroProgress,
+  useRevealOnScroll,
+  scrollToTarget,
+  scrollToTopInstant,
+} from './lib/scroll';
 
 export default function App() {
-  // Page Navigation: 'home' | 'menu'
-  const [currentPage, setCurrentPage] = useState<'home' | 'menu'>(() => {
-    return window.location.hash === '#menu' ? 'menu' : 'home';
-  });
+  // Page navigation with real URLs: '/' (home) and '/carta' (menu). Old '#menu' links still work.
+  const pageFromLocation = (): 'home' | 'menu' =>
+    window.location.pathname.replace(/\/+$/, '') === '/carta' || window.location.hash === '#menu' ? 'menu' : 'home';
+  const [currentPage, setCurrentPage] = useState<'home' | 'menu'>(pageFromLocation);
 
-  // Sync hash with browser history
   useEffect(() => {
-    const handleHashChange = () => {
-      if (window.location.hash === '#menu') {
-        setCurrentPage('menu');
-      } else {
-        setCurrentPage('home');
-      }
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    // Normalise legacy #menu to /carta
+    if (window.location.hash === '#menu') window.history.replaceState(null, '', '/carta');
+    const onPop = () => setCurrentPage(pageFromLocation());
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, []);
 
+  useSmoothScroll();
+  useHeroProgress(currentPage);
+  useRevealOnScroll(currentPage);
+
   const navigateToMenu = () => {
+    window.history.pushState(null, '', '/carta');
     setCurrentPage('menu');
-    window.location.hash = 'menu';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTopInstant();
   };
 
   const navigateToHome = () => {
+    window.history.pushState(null, '', '/');
     setCurrentPage('home');
-    window.location.hash = '';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTopInstant();
   };
 
   // Language
@@ -142,6 +155,36 @@ export default function App() {
     setCart([]);
   };
 
+  // Per-page title, description and language (kept in sync for crawlers that run JS and for sharing)
+  useEffect(() => {
+    const es = language === 'es';
+    const meta =
+      currentPage === 'menu'
+        ? {
+            title: es
+              ? 'Carta | La Kafeteria · Café de especialidad y brunch en San Pedro Alcántara'
+              : 'Menu | La Kafeteria · Specialty coffee & brunch in San Pedro Alcántara',
+            desc: es
+              ? 'Carta completa de La Kafeteria: pitufos y tostas andaluzas, huevos benedict, tortilla casera, tapas, café de especialidad, zumos y más en San Pedro Alcántara, Marbella.'
+              : 'Full La Kafeteria menu: Andalusian pitufo toasts, eggs benedict, homemade tortilla, tapas, specialty coffee and juices in San Pedro Alcántara, Marbella.',
+          }
+        : {
+            title: es
+              ? 'La Kafeteria · Café de especialidad y brunch en San Pedro Alcántara, Marbella'
+              : 'La Kafeteria · Specialty coffee & brunch in San Pedro Alcántara, Marbella',
+            desc: es
+              ? 'Café de especialidad, desayunos andaluces, huevos benedict y tapas en una terraza luminosa de San Pedro Alcántara. Abierto de 07:30 a 16:00.'
+              : 'Specialty coffee, Andalusian breakfast, eggs benedict and tapas on a sunny terrace in San Pedro Alcántara. Open 07:30 to 16:00.',
+          };
+    document.title = meta.title;
+    document.documentElement.lang = language;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', meta.desc);
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', meta.title);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', meta.desc);
+    const canon = document.querySelector('link[rel="canonical"]');
+    if (canon) canon.setAttribute('href', window.location.origin + (currentPage === 'menu' ? '/carta' : '/'));
+  }, [currentPage, language]);
+
   const totalCartCount = useMemo(() => {
     return cart.reduce((sum, i) => sum + i.quantity, 0);
   }, [cart]);
@@ -155,20 +198,20 @@ export default function App() {
       navigateToHome();
       setTimeout(() => {
         const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 150);
+        if (el) scrollToTarget(el);
+      }, 250);
     } else {
       const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (el) scrollToTarget(el);
     }
   };
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTarget(0);
   };
 
   return (
-    <div className="min-h-screen bg-[#1b1411] text-[#ede0d0] flex flex-col selection:bg-[#d98236] selection:text-[#1b1411] pb-16 md:pb-0">
+    <div className="grain min-h-screen bg-[#1b1411] text-[#ede0d0] flex flex-col selection:bg-[#d98236] selection:text-[#1b1411] pb-16 md:pb-0">
       
       {/* 1. Header / Navbar with Prominent Menu CTA */}
       <Navbar
@@ -183,9 +226,12 @@ export default function App() {
         onOpenHours={() => scrollToSection('location')}
       />
 
+      <FlyingMark page={currentPage} />
+
       {/* Main View Router: Dedicated Menu Page vs Home Page */}
       {currentPage === 'menu' ? (
-        <div className="pt-16 sm:pt-20">
+        <div>
+          <Suspense fallback={<div className="min-h-[100dvh]" />}>
           <MenuPage
             language={language}
             onBackToHome={navigateToHome}
@@ -193,6 +239,7 @@ export default function App() {
             onOpenCart={() => setIsCartOpen(true)}
             cartCount={totalCartCount}
           />
+          </Suspense>
         </div>
       ) : (
         <main className="flex-1">
@@ -222,87 +269,75 @@ export default function App() {
       )}
 
       {/* Footer */}
-      <footer className="border-t border-[#a66a38]/25 bg-[#17110e] py-12 px-4 sm:px-6 lg:px-8 text-xs text-[#dfcfbe]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-            {/* Logo with Slogan */}
-            <div className="w-44 sm:w-52 rounded-xl overflow-hidden border border-[#a66a38]/30 shrink-0 shadow-lg bg-[#0e0a08]">
-              <img
-                src="/assets/slogan.webp"
-                alt="La Kafeteria Slogan"
-                className="w-full h-auto object-cover"
-                loading="lazy"
-                referrerPolicy="no-referrer"
-              />
-            </div>
+      <footer className="relative bg-[#120c09] pt-20 pb-14 px-5 sm:px-8 lg:px-10 text-[#dfcfbe]">
+        <div className="hairline absolute top-0 inset-x-0" />
+        <div className="max-w-7xl mx-auto">
+          <div data-reveal className="flex flex-col items-center text-center">
+            <img
+              src="/assets/brand-mark.webp"
+              alt="La Kafeteria"
+              className="w-56 sm:w-72 h-auto"
+              loading="lazy"
+              referrerPolicy="no-referrer"
+            />
+            <p className="eyebrow mt-8 !text-[#c89666]">
+              Specialty Coffee &amp; Mediterranean Brunch Atelier
+            </p>
+            <p className="mt-3 text-sm text-[#dfcfbe]/70 max-w-md leading-relaxed">
+              Calle Marqués del Duero, San Pedro Alcántara, Marbella.
+            </p>
 
-            <div>
-              <div className="flex items-center gap-2.5 mb-1.5">
-                <span className="font-serif text-xl font-bold text-[#f7f1e5] tracking-wider uppercase">
-                  La Kafeteria
-                </span>
-                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[#231a15] text-[#d98236] border border-[#a66a38]/30">
-                  San Pedro
-                </span>
-              </div>
-              <p className="text-xs text-[#c89666] max-w-sm">
-                Specialty Coffee & Mediterranean Brunch Atelier · Calle Marqués del Duero, San Pedro Alcántara, Marbella.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-[#c89666]">
             <button
               onClick={currentPage === 'home' ? navigateToMenu : navigateToHome}
-              className="text-[#d98236] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+              className="group mt-10 inline-flex items-center gap-3 rounded-full border border-[#d98236]/60 px-7 py-3.5 text-[11px] uppercase tracking-[0.28em] text-[#f7f1e5] transition-all duration-500 hover:bg-[#d98236] hover:text-[#1b1411] hover:border-[#d98236] cursor-pointer"
             >
-              <UtensilsCrossed className="w-3.5 h-3.5" />
-              <span>{currentPage === 'home' ? (language === 'es' ? 'Ver Menú' : 'View Menu') : (language === 'es' ? 'Inicio' : 'Home')}</span>
+              <UtensilsCrossed className="w-4 h-4" strokeWidth={1.6} />
+              <span>
+                {currentPage === 'home'
+                  ? language === 'es' ? 'Ver la carta' : 'View the menu'
+                  : language === 'es' ? 'Inicio' : 'Home'}
+              </span>
             </button>
-            <span>·</span>
+          </div>
+
+          <div className="hairline mt-16" />
+
+          <div className="mt-8 grid gap-6 sm:grid-cols-3 text-center sm:text-left text-xs tracking-wide">
             <button
               onClick={() => scrollToSection('location')}
-              className="hover:text-[#f7f1e5] transition-colors cursor-pointer"
+              className="hover:text-[#f7f1e5] transition-colors cursor-pointer sm:text-left"
             >
-              📍 San Pedro Alcántara
+              San Pedro Alcántara
             </button>
-            <span>·</span>
-            <span>🕒 07:30 – 16:00</span>
-            <span>·</span>
-            <a href="tel:+34951234567" className="hover:text-[#f7f1e5] transition-colors">
-              📞 +34 951 234 567
+            <span className="sm:text-center">07:30 – 16:00</span>
+            <a href="tel:+34951234567" className="hover:text-[#f7f1e5] transition-colors sm:text-right">
+              +34 951 234 567
             </a>
           </div>
 
-          <button
-            onClick={scrollToTop}
-            className="p-2.5 rounded-xl bg-[#231a15] hover:bg-[#2c211b] border border-[#a66a38]/30 text-[#d98236] transition-colors self-start md:self-auto flex items-center gap-1.5 cursor-pointer"
-            title="Volver arriba"
-          >
-            <span>Top</span>
-            <ChevronUp className="w-4 h-4" />
-          </button>
-
-        </div>
-
-        <div className="max-w-7xl mx-auto mt-8 pt-4 border-t border-[#a66a38]/15 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#a66a38]">
-          <p>© 2026 La Kafeteria San Pedro Alcántara. Todos los derechos reservados. Precios con IVA incluido.</p>
-          <div className="flex flex-wrap items-center gap-1.5 font-mono">
-            <span>{language === 'es' ? 'Sitio web desarrollado por' : 'Website developed by'}</span>
-            <a
-              href="https://ax07.dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#d98236] hover:text-[#f7f1e5] font-semibold transition-colors underline decoration-[#d98236]/40 underline-offset-2 ml-0.5"
-            >
-              ax07.dev
-            </a>
-            <span className="text-[#a66a38]/60 mx-1">·</span>
-            <span className="flex items-center gap-1">
-              <span>Specialty Coffee Atelier</span>
-              <Heart className="w-3 h-3 text-[#d98236] fill-current inline" />
-            </span>
+          <div className="mt-10 pt-6 border-t border-[#a66a38]/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#a66a38]">
+            <p className="text-center sm:text-left">
+              © 2026 La Kafeteria San Pedro Alcántara. Todos los derechos reservados. Precios con IVA incluido.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
+              <span>{language === 'es' ? 'Sitio web desarrollado por' : 'Website developed by'}</span>
+              <a
+                href="https://ax07.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#d98236] hover:text-[#f7f1e5] font-medium transition-colors underline decoration-[#d98236]/40 underline-offset-2"
+              >
+                ax07.dev
+              </a>
+              <Heart className="w-3 h-3 text-[#d98236] fill-current inline ml-1" />
+              <button
+                onClick={scrollToTop}
+                className="ml-3 inline-flex items-center gap-1 text-[#c89666] hover:text-[#f7f1e5] transition-colors cursor-pointer"
+                aria-label="Volver arriba"
+              >
+                Top <ChevronUp className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       </footer>
@@ -319,6 +354,7 @@ export default function App() {
         onOpenHours={() => scrollToSection('location')}
       />
 
+      <Suspense fallback={null}>
       {/* Item Customizer Modal (Bread options, Milks, Gluten-Free) */}
       <ItemCustomizerModal
         item={customizingItem}
@@ -347,6 +383,11 @@ export default function App() {
         onClose={() => setIsInfoOpen(false)}
         language={language}
       />
+
+      </Suspense>
+
+      <Analytics />
+      <SpeedInsights />
 
     </div>
   );

@@ -84,7 +84,7 @@ export const OrderDrawer: React.FC<OrderDrawerProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden">
+        <div data-lenis-prevent className="fixed inset-0 z-50 overflow-hidden">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}

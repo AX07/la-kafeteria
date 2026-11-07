@@ -1,0 +1,13 @@
+{
+  "name": "La Kafeteria · Specialty Coffee & Breakfast Atelier",
+  "short_name": "La Kafeteria",
+  "description": "Café de especialidad y brunch en San Pedro Alcántara, Marbella.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1b1411",
+  "theme_color": "#1b1411",
+  "icons": [
+    { "src": "/assets/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/assets/logo.webp", "sizes": "512x512", "type": "image/webp" }
+  ]
+}

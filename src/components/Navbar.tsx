@@ -1,7 +1,7 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingBag, MapPin, Globe, UtensilsCrossed, Home, MessageCircle } from 'lucide-react';
+import { ShoppingBag, MapPin, MessageCircle } from 'lucide-react';
 import { Language } from '../types';
+import { MARK_ASPECT } from '../lib/scroll';
 
 interface NavbarProps {
   language: Language;
@@ -15,6 +15,9 @@ interface NavbarProps {
   onOpenHours: () => void;
 }
 
+const iconBtn =
+  'relative h-10 w-10 sm:h-11 sm:w-11 rounded-full border border-[#c89666]/30 bg-[#1b1411]/55 text-[#ede0d0] flex items-center justify-center transition-all duration-300 hover:border-[#d98236] hover:text-[#d98236] active:scale-90 cursor-pointer';
+
 export const Navbar: React.FC<NavbarProps> = ({
   language,
   currentPage,
@@ -26,191 +29,113 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCart,
   onOpenHours,
 }) => {
-  const [isScrolled, setIsScrolled] = React.useState(false);
-  const [isPastHero, setIsPastHero] = React.useState(false);
+  const es = language === 'es';
 
-  React.useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      setIsScrolled(scrollY > 30);
-
-      // Track whether the hero section has been scrolled past
-      const hero = document.getElementById('hero');
-      if (hero) {
-        const rect = hero.getBoundingClientRect();
-        // When the bottom of the hero is within 45% of the viewport height,
-        // the hero's center slogan has scrolled off-screen.
-        setIsPastHero(rect.bottom <= window.innerHeight * 0.45);
-      } else {
-        setIsPastHero(scrollY > window.innerHeight * 0.55);
-      }
-    };
-
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, []);
+  const linkCls = (active: boolean) =>
+    `relative py-2 text-[11px] uppercase tracking-[0.26em] font-medium transition-colors duration-300 cursor-pointer after:absolute after:left-0 after:-bottom-0.5 after:h-px after:w-full after:origin-left after:bg-[#d98236] after:transition-transform after:duration-500 ${
+      active
+        ? 'text-[#d98236] after:scale-x-100'
+        : 'text-[#dfcfbe] hover:text-[#f7f1e5] after:scale-x-0 hover:after:scale-x-100'
+    }`;
 
   return (
-    <header
-      className={`fixed top-0 inset-x-0 z-40 w-full transition-all duration-300 ${
-        currentPage === 'home' && !isScrolled
-          ? 'bg-transparent border-b border-transparent'
-          : 'bg-[#1b1411]/92 backdrop-blur-md border-b border-[#a66a38]/20 shadow-lg'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="fixed top-0 inset-x-0 z-40 w-full">
+      {/* Backdrop layer: fades in as the logo docks (driven by --e) */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 border-b border-[#a66a38]/20 bg-[#1b1411]/96"
+        style={{ opacity: 'var(--e)' }}
+      />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20 gap-3">
-          
-          {/* Brand Mark: Square Logo in Hero, transforms to Slogan Image after Hero */}
+          {/* Dock for the flying logo */}
           <button
+            id="nav-mark-slot"
             onClick={onNavigateHome}
-            className="flex items-center group cursor-pointer focus:outline-none"
-            aria-label="La Kafeteria - Volver al inicio"
-            title={language === 'es' ? 'La Kafeteria · Inicio' : 'La Kafeteria · Home'}
-          >
-            <AnimatePresence mode="wait">
-              {!isPastHero && currentPage === 'home' ? (
-                <motion.div
-                  key="badge-logo"
-                  initial={{ opacity: 0, scale: 0.88, x: -6 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.88, x: -6 }}
-                  transition={{ duration: 0.3, ease: 'easeOut' }}
-                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden shadow-lg shadow-[#d98236]/20 border border-[#c89666]/30 group-hover:scale-105 transition-transform bg-[#16100c] shrink-0 flex items-center justify-center"
-                >
-                  <img
-                    src="/assets/logo.webp"
-                    alt="La Kafeteria Logo"
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="slogan-logo"
-                  initial={{ opacity: 0, scale: 0.92, x: -8 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.92, x: -8 }}
-                  transition={{ duration: 0.35, ease: 'easeOut' }}
-                  className="flex items-center h-10 sm:h-12 py-0.5 group-hover:scale-105 transition-transform duration-300"
-                >
-                  <div className="h-9 sm:h-11 rounded-xl overflow-hidden border border-[#a66a38]/30 shadow-md shadow-[#d98236]/15 bg-[#16100c] flex items-center">
-                    <img
-                      src="/assets/slogan.webp"
-                      alt="La Kafeteria Slogan"
-                      className="h-full w-auto max-h-9 sm:max-h-11 object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </button>
+            aria-label={es ? 'La Kafeteria · Inicio' : 'La Kafeteria · Home'}
+            title={es ? 'La Kafeteria · Inicio' : 'La Kafeteria · Home'}
+            className="shrink-0 cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-[#d98236] rounded"
+            style={{
+              height: 'clamp(40px, 11vw, 50px)',
+              width: `calc(clamp(40px, 11vw, 50px) * ${MARK_ASPECT.toFixed(4)})`,
+            }}
+          />
 
-          {/* Center Navigation Links (Desktop) */}
-          <nav className="hidden md:flex items-center gap-6 text-xs uppercase tracking-wider font-mono text-[#dfcfbe]">
-            <button
-              onClick={onNavigateHome}
-              className={`hover:text-[#d98236] transition-colors cursor-pointer flex items-center gap-1.5 ${
-                currentPage === 'home' ? 'text-[#d98236] font-bold' : ''
-              }`}
-            >
-              <Home className="w-3.5 h-3.5" />
-              <span>{language === 'es' ? 'Inicio' : 'Home'}</span>
+          <nav className="hidden md:flex items-center gap-9">
+            <button onClick={onNavigateHome} className={linkCls(currentPage === 'home')}>
+              {es ? 'Inicio' : 'Home'}
             </button>
-
-            <button
-              onClick={onNavigateMenu}
-              className={`hover:text-[#d98236] transition-colors cursor-pointer flex items-center gap-1.5 ${
-                currentPage === 'menu' ? 'text-[#d98236] font-bold' : ''
-              }`}
-            >
-              <UtensilsCrossed className="w-3.5 h-3.5" />
-              <span>{language === 'es' ? 'Carta & Menú' : 'Menu'}</span>
+            <button onClick={onNavigateMenu} className={linkCls(currentPage === 'menu')}>
+              {es ? 'Carta' : 'Menu'}
             </button>
-
             {currentPage === 'home' && (
               <>
-                <a href="#picks" className="hover:text-[#d98236] transition-colors">
-                  {language === 'es' ? 'Destacados' : 'Picks'}
+                <a href="#picks" className={linkCls(false)}>
+                  {es ? 'Destacados' : 'Picks'}
                 </a>
-                <a href="#atmosphere" className="hover:text-[#d98236] transition-colors">
-                  {language === 'es' ? 'Terraza' : 'Patio'}
+                <a href="#atmosphere" className={linkCls(false)}>
+                  {es ? 'Terraza' : 'Patio'}
                 </a>
-                <a href="#location" className="hover:text-[#d98236] transition-colors">
-                  {language === 'es' ? 'Horario' : 'Hours'}
+                <a href="#location" className={linkCls(false)}>
+                  {es ? 'Horario' : 'Hours'}
                 </a>
               </>
             )}
           </nav>
 
-          {/* Right Action Cluster */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            
-            {/* Top Action: WhatsApp with just the icon */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <a
               href={`https://wa.me/34614124159?text=${encodeURIComponent(
-                language === 'es'
+                es
                   ? '¡Hola La Kafeteria! Me gustaría reservar mesa en la terraza en San Pedro Alcántara.'
                   : 'Hello La Kafeteria! I would like to reserve a terrace table in San Pedro Alcántara.'
               )}`}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="WhatsApp La Kafeteria"
-              title={language === 'es' ? 'WhatsApp · Reservar Mesa' : 'WhatsApp · Book Table'}
-              className="p-2.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/40 text-[#25D366] transition-all transform active:scale-95 flex items-center justify-center cursor-pointer shadow-sm shadow-[#25D366]/20"
+              title={es ? 'WhatsApp · Reservar Mesa' : 'WhatsApp · Book Table'}
+              className={`${iconBtn} !border-[#25D366]/35 !text-[#4fd98a] hover:!border-[#25D366] hover:!text-[#25D366]`}
             >
-              <MessageCircle className="w-4 h-4 sm:w-4.5 sm:h-4.5 fill-current" />
+              <MessageCircle className="w-[17px] h-[17px]" strokeWidth={1.8} />
             </a>
 
-            {/* Location / Hours Button */}
             <button
               onClick={onOpenHours}
-              className="p-2 sm:px-3 sm:py-2 rounded-lg bg-[#231a15] hover:bg-[#2c211b] border border-[#a66a38]/30 text-[#ede0d0] text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="Horario y Ubicación"
+              className={iconBtn}
+              aria-label={es ? 'Horario y ubicación' : 'Hours and location'}
+              title={es ? 'Horario y ubicación' : 'Hours and location'}
             >
-              <MapPin className="w-3.5 h-3.5 text-[#c89666]" />
-              <span className="hidden sm:inline">San Pedro</span>
+              <MapPin className="w-[17px] h-[17px]" strokeWidth={1.8} />
             </button>
 
-            {/* Language Switch */}
             <button
               onClick={onToggleLanguage}
-              className="px-2.5 py-1.5 rounded-lg bg-[#231a15] hover:bg-[#2c211b] border border-[#a66a38]/30 text-[#ede0d0] text-xs font-mono font-medium flex items-center gap-1 transition-colors cursor-pointer"
-              title={language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
+              className={`${iconBtn} text-[11px] font-medium tracking-[0.12em] uppercase`}
+              title={es ? 'Switch to English' : 'Cambiar a Español'}
+              aria-label={es ? 'Switch to English' : 'Cambiar a Español'}
             >
-              <Globe className="w-3 h-3 text-[#c89666]" />
-              <span className="uppercase">{language}</span>
+              {language}
             </button>
 
-            {/* Ticket / Cart Trigger */}
             <button
               onClick={onOpenCart}
-              className="relative flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-lg bg-[#231a15] hover:bg-[#2c211b] border border-[#a66a38]/40 text-[#f7f1e5] font-semibold text-xs sm:text-sm shadow-md transition-all transform active:scale-95 cursor-pointer"
-              title="Ver comanda"
+              className={`${iconBtn} !border-[#d98236]/50`}
+              title={es ? 'Ver comanda' : 'View order'}
+              aria-label={es ? 'Ver comanda' : 'View order'}
             >
-              <ShoppingBag className="w-4 h-4 text-[#d98236]" strokeWidth={2.5} />
-              {cartCount > 0 ? (
-                <div className="flex items-center gap-1">
-                  <span className="w-5 h-5 rounded-full bg-[#d98236] text-[#1b1411] text-[11px] font-mono flex items-center justify-center font-bold">
-                    {cartCount}
-                  </span>
-                  <span className="hidden md:inline font-mono text-xs text-[#d98236]">
-                    {cartTotal.toFixed(2)}€
-                  </span>
-                </div>
-              ) : (
-                <span className="hidden sm:inline text-xs text-[#c89666]">
-                  {language === 'es' ? 'Ticket' : 'Ticket'}
+              <ShoppingBag className="w-[17px] h-[17px] text-[#d98236]" strokeWidth={1.8} />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#d98236] text-[#1b1411] text-[10px] font-semibold flex items-center justify-center">
+                  {cartCount}
                 </span>
               )}
             </button>
-
+            {cartCount > 0 && (
+              <span className="hidden lg:inline text-xs text-[#d98236] tabular-nums tracking-wide pl-1">
+                {cartTotal.toFixed(2)}€
+              </span>
+            )}
           </div>
         </div>
       </div>

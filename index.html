@@ -1,26 +1,105 @@
 <!doctype html>
-<html lang="es" class="dark">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>La Kafeteria - Specialty Coffee & Breakfast Atelier</title>
-    <meta name="description" content="Artisan specialty coffee, traditional Andalusian pitufo toasts, eggs benedict, fresh smoothies, and tapas in San Pedro Alcántara." />
-    <meta property="og:title" content="La Kafeteria - Specialty Coffee & Breakfast Atelier" />
-    <meta property="og:description" content="Artisan specialty coffee, traditional Andalusian pitufo toasts, eggs benedict, fresh smoothies, and tapas in San Pedro Alcántara." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#1b1411" />
+    <meta name="color-scheme" content="dark" />
+
+    <title>La Kafeteria · Café de especialidad y brunch en San Pedro Alcántara, Marbella</title>
+    <meta name="description" content="Café de especialidad, desayunos andaluces, huevos benedict y tapas en una terraza luminosa de San Pedro Alcántara. Abierto de 07:30 a 16:00." />
+    <meta name="keywords" content="cafetería San Pedro Alcántara, café de especialidad Marbella, desayunos San Pedro, brunch Marbella, huevos benedict, pitufo andaluz, tapas San Pedro Alcántara" />
+    <meta name="author" content="La Kafeteria" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <link rel="canonical" href="%SITE_URL%/" />
+
+    <meta property="og:site_name" content="La Kafeteria" />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:locale:alternate" content="en_GB" />
+    <meta property="og:title" content="La Kafeteria · Café de especialidad y brunch en San Pedro Alcántara, Marbella" />
+    <meta property="og:description" content="Café de especialidad, desayunos andaluces, huevos benedict y tapas en una terraza luminosa de San Pedro Alcántara. Abierto de 07:30 a 16:00." />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta property="og:image" content="%SITE_URL%/assets/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="La Kafeteria · Coffee and Breakfast" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="%SITE_URL%/assets/og-image.jpg" />
+
+    <meta name="geo.region" content="ES-MA" />
+    <meta name="geo.placename" content="San Pedro Alcántara, Marbella" />
+
     <link rel="icon" type="image/webp" href="/assets/logo.webp" />
-    <link rel="apple-touch-icon" href="/assets/logo.webp" />
-    <meta property="og:image" content="/assets/slogan.webp" />
-    <meta name="twitter:image" content="/assets/slogan.webp" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://images.unsplash.com">
-    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1608039829572-78524f79c4c7?auto=format&fit=crop&w=1000&q=80">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..900;1,9..40,300..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="image" href="/assets/brand-mark.webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/assets/intro-poster.webp" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300..700&family=Playfair+Display:ital,wght@0,400..700;1,400..700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "CafeOrCoffeeShop",
+        "@id": "%SITE_URL%/#cafe",
+        "name": "La Kafeteria",
+        "alternateName": "La Kafeteria Specialty Coffee & Breakfast Atelier",
+        "description": "Café de especialidad, desayunos andaluces, huevos benedict y tapas en una terraza luminosa de San Pedro Alcántara, Marbella.",
+        "url": "%SITE_URL%/",
+        "image": "%SITE_URL%/assets/og-image.jpg",
+        "logo": "%SITE_URL%/assets/logo.webp",
+        "telephone": "+34614124159",
+        "priceRange": "€",
+        "servesCuisine": ["Mediterránea", "Andaluza", "Desayunos", "Café de especialidad"],
+        "hasMenu": "%SITE_URL%/carta",
+        "menu": "%SITE_URL%/carta",
+        "acceptsReservations": "True",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Calle Marqués del Duero",
+          "addressLocality": "San Pedro Alcántara",
+          "addressRegion": "Málaga",
+          "addressCountry": "ES"
+        },
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            "opens": "07:30",
+            "closes": "16:00"
+          },
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": "Sunday",
+            "opens": "08:30",
+            "closes": "15:00"
+          }
+        ],
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "reviewCount": "280"
+        },
+        "sameAs": ["https://maps.google.com/?q=San+Pedro+Alcantara+Marbella"]
+      }
+    </script>
   </head>
   <body class="bg-[#1b1411] text-[#ede0d0] antialiased selection:bg-[#d98236] selection:text-white">
     <div id="root"></div>
+    <noscript>
+      <main style="padding:2rem;font-family:Georgia,serif;color:#ede0d0;background:#1b1411">
+        <h1>La Kafeteria · Specialty Coffee &amp; Breakfast Atelier</h1>
+        <p>Café de especialidad, desayunos andaluces, huevos benedict y tapas en San Pedro Alcántara, Marbella.</p>
+        <p>Calle Marqués del Duero, San Pedro Alcántara. Lunes a sábado 07:30 – 16:00, domingos y festivos 08:30 – 15:00.</p>
+        <p><a href="/carta" style="color:#d98236">Ver la carta</a></p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

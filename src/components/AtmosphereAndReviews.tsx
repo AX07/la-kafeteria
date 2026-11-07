@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { Star, MessageSquareQuote, CheckCircle2, Sparkles, Coffee, Heart, Box, Eye, RotateCw } from 'lucide-react';
 import { Language } from '../types';
-import { ThreeCoffeeCanvas } from './ThreeCoffeeCanvas';
+const ThreeCoffeeCanvas = lazy(() =>
+  import('./ThreeCoffeeCanvas').then((m) => ({ default: m.ThreeCoffeeCanvas }))
+);
 
 interface AtmosphereAndReviewsProps {
   language: Language;
@@ -64,7 +66,7 @@ const ATMOSPHERE_CARDS = [
     subtitleEn: 'San Pedro Morning Sun',
     descEs: 'Espacio al aire libre con sombrillas y luz natural mediterránea todo el año.',
     descEn: 'Open-air al fresco dining with shaded umbrellas and warm coastal breeze.',
-    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80',
+    image: '/assets/site/1554118811-1e0d58224f24.webp',
   },
   {
     id: 'atmo-extraction',
@@ -74,7 +76,7 @@ const ATMOSPHERE_CARDS = [
     subtitleEn: '100% Arabica Beans',
     descEs: 'Molido al momento con leche fresca emulsionada a la temperatura óptima.',
     descEn: 'Freshly ground to order with velvety microfoam milk at the exact sweet spot.',
-    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80',
+    image: '/assets/site/1495474472287-4d71bcdd2085.webp',
   },
   {
     id: 'atmo-brunch',
@@ -84,7 +86,7 @@ const ATMOSPHERE_CARDS = [
     subtitleEn: 'Farm Eggs & Fresh Produce',
     descEs: 'Salsas holandesa y brava caseras preparadas a diario sin ultraprocesados.',
     descEn: 'Signature homemade hollandaise and spicy brava reduction cooked fresh daily.',
-    image: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=800&q=80',
+    image: '/assets/site/1533089860892-a7c6f0a88666.webp',
   },
   {
     id: 'atmo-bakery',
@@ -94,7 +96,7 @@ const ATMOSPHERE_CARDS = [
     subtitleEn: 'Pitufos & Warm Croissants',
     descEs: 'Tradición malagueña en pan crujiente y bollería hojaldrada con mantequilla pura.',
     descEn: 'Authentic Andalusian rolls, ancient spelt baguettes and flaky warm pastries.',
-    image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=800&q=80',
+    image: '/assets/site/1555507036-ab1f4038808a.webp',
   },
 ];
 
@@ -104,17 +106,17 @@ export const AtmosphereAndReviews: React.FC<AtmosphereAndReviewsProps> = ({
   const [show3dExtraction, setShow3dExtraction] = useState(false);
 
   return (
-    <section id="atmosphere" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 scroll-mt-24">
+    <section id="atmosphere" className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-20 sm:py-28 scroll-mt-24">
       
       {/* Atmosphere Section Header */}
-      <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-        <span className="text-[11px] uppercase tracking-[0.25em] text-[#d98236] font-mono block mb-1">
+      <div data-reveal className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+        <span className="eyebrow eyebrow-rule block mb-5">
           {language === 'es' ? 'La Experiencia' : 'The Vibe'}
         </span>
-        <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#f7f1e5]">
+        <h2 className="font-serif text-[2.1rem] sm:text-5xl font-medium leading-[1.1] text-[#f7f1e5] text-balance">
           {language === 'es' ? 'Ambiente, Terraza & Pasión Barista' : 'Atmosphere, Patio & Craft'}
         </h2>
-        <p className="mt-2 text-xs sm:text-sm text-[#dfcfbe]">
+        <p className="mt-5 text-sm text-[#dfcfbe]/75 leading-relaxed">
           {language === 'es'
             ? 'Un rincón luminoso en San Pedro Alcántara donde la calma del café se une a la energía del brunch mediterráneo.'
             : 'A sun-drenched sanctuary in San Pedro Alcántara where calm specialty coffee meets vibrant daytime dining.'}
@@ -123,17 +125,21 @@ export const AtmosphereAndReviews: React.FC<AtmosphereAndReviewsProps> = ({
 
       {/* Atmosphere Visual Grid (3-4 Visual Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-16">
-        {ATMOSPHERE_CARDS.map((card) => {
+        {ATMOSPHERE_CARDS.map((card, cardIdx) => {
           const isExtractionCard = card.id === 'atmo-extraction';
 
           return (
             <div
               key={card.id}
+              data-reveal
+              style={{ ['--reveal-delay' as any]: `${cardIdx * 110}ms` }}
               className="group rounded-2xl bg-[#231a15] border border-[#a66a38]/25 overflow-hidden flex flex-col hover:border-[#d98236]/60 transition-all duration-300"
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-[#1b1411]">
                 {isExtractionCard && show3dExtraction ? (
-                  <ThreeCoffeeCanvas className="w-full h-full min-h-[220px]" />
+                  <Suspense fallback={<div className="w-full h-full min-h-[220px]" />}>
+                    <ThreeCoffeeCanvas className="w-full h-full min-h-[220px]" />
+                  </Suspense>
                 ) : (
                   <>
                     <img
@@ -198,7 +204,7 @@ export const AtmosphereAndReviews: React.FC<AtmosphereAndReviewsProps> = ({
       </div>
 
       {/* Social Proof / Google Reviews Card */}
-      <div className="rounded-3xl bg-gradient-to-b from-[#231a15] to-[#1e1612] border border-[#a66a38]/30 p-6 sm:p-10 shadow-2xl space-y-8">
+      <div data-reveal className="rounded-3xl bg-gradient-to-b from-[#231a15] to-[#1e1612] border border-[#a66a38]/30 p-6 sm:p-10 shadow-2xl space-y-8">
         
         {/* Google Badge Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#a66a38]/20 pb-6">
@@ -239,9 +245,11 @@ export const AtmosphereAndReviews: React.FC<AtmosphereAndReviewsProps> = ({
 
         {/* 3 Authentic Customer Quotes */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {REVIEWS.map((rev) => (
+          {REVIEWS.map((rev, revIdx) => (
             <div
               key={rev.id}
+              data-reveal
+              style={{ ['--reveal-delay' as any]: `${revIdx * 120}ms` }}
               className="p-5 rounded-2xl bg-[#1b1411]/80 border border-[#a66a38]/20 flex flex-col justify-between space-y-4 hover:border-[#d98236]/40 transition-colors"
             >
               <div className="space-y-3">

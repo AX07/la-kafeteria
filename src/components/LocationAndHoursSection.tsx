@@ -25,7 +25,7 @@ export const LocationAndHoursSection: React.FC<LocationAndHoursSectionProps> = (
   )}`;
 
   return (
-    <section id="location" className="relative bg-[#1b1411] py-16 sm:py-24 border-b border-[#a66a38]/20 overflow-hidden">
+    <section id="location" className="relative bg-[#1b1411] py-20 sm:py-28 overflow-hidden">
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -33,7 +33,7 @@ export const LocationAndHoursSection: React.FC<LocationAndHoursSectionProps> = (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           
           {/* LEFT: Architectural Arched Frame with Organic Contour Waves */}
-          <div className="lg:col-span-5 relative flex justify-center">
+          <div data-reveal="scale" className="lg:col-span-5 relative flex justify-center">
             <div className="relative w-full max-w-sm sm:max-w-md aspect-[3/4]">
               
               {/* Outer Decorative Contour Wave Lines (Exact decorative line styling from image.png) */}
@@ -66,7 +66,7 @@ export const LocationAndHoursSection: React.FC<LocationAndHoursSectionProps> = (
                 className="w-full h-full rounded-t-[14rem] rounded-b-2xl overflow-hidden border border-[#a66a38]/40 shadow-2xl shadow-black relative z-10 bg-[#231a15]"
               >
                 <img
-                  src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=900&q=80"
+                  src="/assets/site/1554118811-1e0d58224f24.webp"
                   alt="Interior y terraza de La Kafeteria San Pedro"
                   className="w-full h-full object-cover brightness-90 contrast-105"
                   loading="lazy"
@@ -87,10 +87,10 @@ export const LocationAndHoursSection: React.FC<LocationAndHoursSectionProps> = (
           </div>
 
           {/* RIGHT: Editorial Headline, Experience Paragraph, Schedule, Action Buttons */}
-          <div className="lg:col-span-7 space-y-6 sm:space-y-8">
+          <div data-reveal className="lg:col-span-7 space-y-6 sm:space-y-8" style={{ ['--reveal-delay' as any]: '150ms' }}>
             
             {/* Main Editorial Headline (Exact wording & tone from image.png) */}
-            <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-bold text-[#f7f1e5] leading-[1.18] tracking-tight">
+            <h2 className="font-serif text-[2rem] sm:text-5xl lg:text-5xl font-medium text-[#f7f1e5] leading-[1.14] tracking-tight text-balance">
               {language === 'es' ? (
                 <>
                   Sabor exquisito y una experiencia inolvidable, donde la elegancia se une al sabor.
