@@ -23,6 +23,7 @@ const AtelierInfoModal = lazy(() =>
 import { Language, MenuItem, CartItem, SelectedItemOption } from './types';
 import { ChevronUp, Heart, UtensilsCrossed } from 'lucide-react';
 import { FlyingMark } from './components/FlyingMark';
+import { safeStorage } from './lib/storage';
 import {
   useSmoothScroll,
   useHeroProgress,
@@ -63,20 +64,20 @@ export default function App() {
 
   // Language
   const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem('la_kafeteria_lang');
+    const saved = safeStorage.get('la_kafeteria_lang');
     return saved === 'en' || saved === 'es' ? saved : 'es';
   });
 
   const toggleLanguage = () => {
     const next = language === 'es' ? 'en' : 'es';
     setLanguage(next);
-    localStorage.setItem('la_kafeteria_lang', next);
+    safeStorage.set('la_kafeteria_lang', next);
   };
 
   // Cart / Order State
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
-      const saved = localStorage.getItem('la_kafeteria_cart');
+      const saved = safeStorage.get('la_kafeteria_cart');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -85,7 +86,7 @@ export default function App() {
 
   useEffect(() => {
     try {
-      localStorage.setItem('la_kafeteria_cart', JSON.stringify(cart));
+      safeStorage.set('la_kafeteria_cart', JSON.stringify(cart));
     } catch (e) {
       console.error(e);
     }
